@@ -59,6 +59,14 @@ def create_new_csv():
         csv_writer = csv.writer(f)
         csv_writer.writerow(claim_head)
 
+    # create claim detail
+    claim_detail_head = ["claim_no", "occdate_before_polexpdate", "certissued_US_CAN", "is_suicide", "insuredid_match", "is_fraud_claim"]
+    
+    path = "csv_files/claim_det.csv"
+    with open(path, "w") as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow(claim_detail_head)
+
 def create_new_insurance():
 
     insured_info = ""
@@ -147,7 +155,7 @@ def create_new_insurance():
 
     insured_email = policy_owner_lname + "." + policy_owner_fname + "@azure.com"
 
-    insured_family_doctor = get_random_str
+    insured_family_doctor = get_random_str()
 
     is_insured_smoke = (random.randint(0,1) == 1)
 
@@ -276,6 +284,7 @@ def create_new_insurance():
     # claim
     print("create claim object...")
     my_claim = []
+    my_claim_det = []
     claim_count = random.randint(0, 5)
     claimed = (random.randint(0,1) == 1)
     for i in range(claim_count):
@@ -290,14 +299,29 @@ def create_new_insurance():
         
         if claimed and i==0:
             is_fraud_claim = False
+            my_claim_det.append([claim_no, 1, 1, 0, 1, is_fraud_claim])
         else:
             is_fraud_claim = True
+            tag_point = random.randint(1,4)
+            occdate_before_polexpdate = 0 if round(float(tag_point)/1.00, 2) == 1.00 else 1
+            certissued_US_CAN = 0 if round(float(tag_point)/2.00, 2) == 1.00 else 1
+            is_suicide = 1 if round(float(tag_point)/3.00, 2) == 1.00 else 0
+            insuredid_match = 0 if round(float(tag_point)/4.00) == 1.00 else 1
+            my_claim_det.append([claim_no, occdate_before_polexpdate, certissued_US_CAN, is_suicide, insuredid_match, is_fraud_claim])
+
         my_claim.append([claim_no, policy_no, claim_occurence_date, claim_type, is_fraud_claim])
+
     if claim_count > 0:
         path = "csv_files/claim.csv"
         with open(path, "a+") as f:
             csv_writer = csv.writer(f)
             for i in my_claim:
+                csv_writer.writerow(i)
+        
+        path = "csv_files/claim_det.csv"
+        with open(path, "a+") as f:
+            csv_writer = csv.writer(f)
+            for i in my_claim_det:
                 csv_writer.writerow(i)
 
     print("done")
@@ -315,7 +339,7 @@ if __name__ == "__main__":
     print("start...")
     print("create new csvs")
     create_new_csv()
-    for i in range(0,1000):
+    for i in range(0,5000):
         print("create no:",i)
         create_new_insurance()
     print("all done.")
